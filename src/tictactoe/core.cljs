@@ -1,6 +1,7 @@
 (ns tictactoe.core
   (:require [reagent.core :as reagent :refer [atom]]
-            [tictactoe.shapes :refer [circle cross]]))
+            [tictactoe.shapes :refer [circle cross]]
+            [tictactoe.logic :as logic]))
 
 (enable-console-print!)
 
@@ -19,57 +20,6 @@
       (assoc :board (new-board n))
       (assoc :game-status :in-progress)))
 
-(defn computer-move [board]
-  (let [available-moves (for [i (range board-size)
-                              j (range board-size)
-                              :when (= (get-in board [j i]) :blank)]
-                          [j i])
-        move (rand-nth available-moves)]
-    (assoc-in board move :computer)))
-
-(defn straight? [owner board [x y] [dx dy]]
-  (every? true?
-          (for [i (range (count board))]
-            (= (get-in board [(+ (* dy i) y)
-                              (+ (* dx i) x)])
-               owner))))
-
-(defn win? [owner board]
-  (some true?
-        (for [i (range board-size)
-              j (range board-size)
-              dir [[1 0] [0 1] [1 1] [1 -1]]]
-          (straight? owner board [i j] dir))))
-
-(defn full? [board]
-  (empty? (filter #(= :blank %) (apply concat board))))
-
-(defn status [board]
-  (cond
-    (win? :player board) :won
-    (win? :computer board) :lost
-    (full? board) :draw
-    :else :in-progress))
-
-(defn update-status [state]
-  (assoc state :game-status (status (:board state))))
-
-(defn game-running? [state]
-  (or (nil? (:game-status state)) (= (:game-status state) :in-progress)))
-
-(defn computer-move-if-possible [state]
-  (if (game-running? state)
-    (update state :board computer-move)
-    state))
-
-(defn play [state x y]
-  (when (game-running? state)
-    (-> state
-        (assoc-in [:board y x] :player)
-        update-status
-        (computer-move-if-possible)
-        update-status)))
-
 (defn blank [x y]
   [:rect
    {:width 0.9
@@ -77,8 +27,8 @@
     :fill "#546"
     :x (+ 0.05 x)
     :y (+ 0.05 y)
-    :on-click  (fn [] (if (game-running? @app-state)
-                        (swap! app-state (partial play @app-state x y))))}])
+    :on-click  (fn [] (if (logic/game-running? @app-state)
+                        (swap! app-state (partial logic/play @app-state x y))))}])
 
 (defn board []
   (into
@@ -117,5 +67,5 @@
 (defn on-js-reload []
   ;; optionally touch your app-state to force rerendering depending on
   ;; your application
-  (swap! app-state assoc :text "Tic Tac Toe")
+  ;; (swap! app-state assoc :text "Tic Tac Toe")
 )
