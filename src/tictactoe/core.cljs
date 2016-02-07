@@ -4,11 +4,14 @@
 (enable-console-print!)
 
 (defn new-board [n]
-  (vec (repeat n (vec (repeat n 0)))))
+  (vec (repeat n (vec (repeat n :blank)))))
 
 (defonce app-state
   (atom {:text "Hello world!"
          :board (new-board 3)}))
+
+(defn computer-move []
+  (swap! app-state assoc-in [:board 0 0] :computer))
 
 (for [i (range (count (:board @app-state)))
       j (range (count (:board @app-state))) ]
@@ -30,10 +33,11 @@
    {:width 0.9
     :height 0.9
     :fill "#546"
-    :key (str x y)
     :x (+ 0.05 x)
     :y (+ 0.05 y)
-    :on-click (fn [] (swap! app-state update-in [:board y x] inc))}])
+    :on-click (fn []
+                (swap! app-state assoc-in [:board y x] :player)
+                (computer-move))}])
 
 (defn cross [x y]
   [:g {:stroke "#b45"
@@ -54,9 +58,9 @@
    (for [i (range (count (:board @app-state)))
          j (range (count (:board @app-state))) ]
      (case (get-in @app-state [:board j i])
-       0 [blank i j]
-       1 [circle i j]
-       2 [cross i j])
+       :blank [blank i j]
+       :player [circle i j]
+       :computer [cross i j])
      )
    ))
 
@@ -65,7 +69,12 @@
    [cross 1 1]
    [:h1 (:text @app-state)]
    [:button {:on-click #(prn @app-state)} "Print State"]
-   [board]])
+   [board]
+   [:p
+    [:button
+     {:on-click (fn new-game-click [e]
+                  (swap! app-state assoc :board (new-board 3)))}
+     "New Game"]]])
 
 (reagent/render-component [app]
                           (. js/document (getElementById "app")))
