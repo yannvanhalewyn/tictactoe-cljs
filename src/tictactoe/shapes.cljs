@@ -8,10 +8,10 @@
     :cy (+ y 0.5)
     :fill "none"
     :stroke-width "0.1"
-    :stroke "#5b8"}])
+    :stroke "#5E9A92"}])
 
 (defn cross [x y]
-  [:g {:stroke "#b45"
+  [:g {:stroke "#BC6C6D"
        :stroke-width 0.35
        :stroke-linecap "round"
        :transform

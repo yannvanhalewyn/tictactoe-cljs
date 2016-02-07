@@ -24,7 +24,7 @@
   [:rect
    {:width 0.9
     :height 0.9
-    :fill "#546"
+    :fill "#6B6F8A"
     :x (+ 0.05 x)
     :y (+ 0.05 y)
     :on-click  (fn [] (if (logic/game-running? @app-state)
@@ -52,13 +52,12 @@
           :lost "You lost.."
           :draw "It's a draw!"
           "")]
-   [:button {:on-click #(prn @app-state)} "Print State"]
-   [board]
    [:p
     [:button
      {:on-click (fn new-game-click [e]
                   (swap! app-state #(new-game board-size)))}
-     "New Game"]]])
+     "New Game"]]
+   [board]])
 
 (reagent/render-component [app]
                           (. js/document (getElementById "app")))

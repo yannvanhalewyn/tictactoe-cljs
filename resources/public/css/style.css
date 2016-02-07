@@ -1,2 +1,22 @@
 /* some style */
+body {
+  font-family: 'Raleway Dots', cursive;
+  text-align: center;
+  background: #efefef;
+}
 
+button {
+  background: #8EB2AE;
+  border: none;
+  padding: 15px;
+  font-size: 1.3em;
+  border-radius: 4px;
+}
+
+button:hover {
+  background: #5E9A92;
+  cursor: pointer;
+}
+
+button:focus {outline: none;}
+svg {cursor: pointer;}
