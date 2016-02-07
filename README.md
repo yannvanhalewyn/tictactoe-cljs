@@ -1,10 +1,12 @@
-# tictactoe
+# Tic Tac Toe
 
-FIXME: Write a one-line description of your library/project.
+Simple TicTacToe game written in clojuscript. Build for learning purpouses. The
+idea and setup came from a [youtube video](https://www.youtube.com/watch?v=pIiOgTwjbes)
+by Timothy Pratley. It is, however, my own take on the implementation.
 
-## Overview
+# Try it live
 
-FIXME: Write a paragraph about the library/project and highlight its goals.
+You can try it right now, as it is [posted on Github Pages.](http://yannvanhalewyn.github.io/tictactoe-cljs/)
 
 ## Setup
 
@@ -30,10 +32,4 @@ To create a production build run:
     lein do clean, cljsbuild once min
 
 And open your browser in `resources/public/index.html`. You will not
-get live reloading, nor a REPL. 
-
-## License
-
-Copyright © 2014 FIXME
-
-Distributed under the Eclipse Public License either version 1.0 or (at your option) any later version.
+get live reloading, nor a REPL.
