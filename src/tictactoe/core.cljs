@@ -1,32 +1,74 @@
 (ns tictactoe.core
-  (:require [reagent.core :as reagent :refer [atom]]))
+  (:require [reagent.core :as reagent :refer [atom]]
+            [tictactoe.shapes :refer [circle cross]]))
 
 (enable-console-print!)
+
+(def board-size 3)
 
 (defn new-board [n]
   (vec (repeat n (vec (repeat n :blank)))))
 
 (defonce app-state
-  (atom {:text "Hello world!"
-         :board (new-board 3)}))
+  (atom {:text "Tic Tac Toe"
+         :board (new-board board-size)
+         :game-status :in-progress}))
 
-(defn computer-move []
-  (swap! app-state assoc-in [:board 0 0] :computer))
+(defn new-game [n]
+  (-> @app-state
+      (assoc :board (new-board n))
+      (assoc :game-status :in-progress)))
 
-(for [i (range (count (:board @app-state)))
-      j (range (count (:board @app-state))) ]
-  (prn i j))
+(defn computer-move [board]
+  (let [available-moves (for [i (range board-size)
+                              j (range board-size)
+                              :when (= (get-in board [j i]) :blank)]
+                          [j i])
+        move (rand-nth available-moves)]
+    (assoc-in board move :computer)))
 
-(defn circle [x y]
-  (prn "Ok!")
-  [:circle
-   {
-    :r 0.4
-    :cx (+ x 0.5)
-    :cy (+ y 0.5)
-    :fill "none"
-    :stroke-width "0.1"
-    :stroke "#5b8"}])
+(defn straight? [owner board [x y] [dx dy]]
+  (every? true?
+          (for [i (range (count board))]
+            (= (get-in board [(+ (* dy i) y)
+                              (+ (* dx i) x)])
+               owner))))
+
+(defn win? [owner board]
+  (some true?
+        (for [i (range board-size)
+              j (range board-size)
+              dir [[1 0] [0 1] [1 1] [1 -1]]]
+          (straight? owner board [i j] dir))))
+
+(defn full? [board]
+  (empty? (filter #(= :blank %) (apply concat board))))
+
+(defn status [board]
+  (cond
+    (win? :player board) :won
+    (win? :computer board) :lost
+    (full? board) :draw
+    :else :in-progress))
+
+(defn update-status [state]
+  (assoc state :game-status (status (:board state))))
+
+(defn game-running? [state]
+  (or (nil? (:game-status state)) (= (:game-status state) :in-progress)))
+
+(defn computer-move-if-possible [state]
+  (if (game-running? state)
+    (update state :board computer-move)
+    state))
+
+(defn play [state x y]
+  (when (game-running? state)
+    (-> state
+        (assoc-in [:board y x] :player)
+        update-status
+        (computer-move-if-possible)
+        update-status)))
 
 (defn blank [x y]
   [:rect
@@ -35,24 +77,13 @@
     :fill "#546"
     :x (+ 0.05 x)
     :y (+ 0.05 y)
-    :on-click (fn []
-                (swap! app-state assoc-in [:board y x] :player)
-                (computer-move))}])
-
-(defn cross [x y]
-  [:g {:stroke "#b45"
-       :stroke-width 0.35
-       :stroke-linecap "round"
-       :transform
-       (str "translate(" (+ 0.5 x) "," (+ 0.5 y) ") "
-            "scale(0.35)")}
-   [:line {:x1 -1 :y1 -1 :x2 1 :y2 1}]
-   [:line {:x1 1 :y1 -1 :x2 -1 :y2 1}]])
+    :on-click  (fn [] (if (game-running? @app-state)
+                        (swap! app-state (partial play @app-state x y))))}])
 
 (defn board []
   (into
    [:svg
-    {:view-box "0 0 3 3"
+    {:view-box (str "0 0 " board-size " " board-size)
      :width 500
      :height 500}]
    (for [i (range (count (:board @app-state)))
@@ -60,20 +91,23 @@
      (case (get-in @app-state [:board j i])
        :blank [blank i j]
        :player [circle i j]
-       :computer [cross i j])
-     )
-   ))
+       :computer [cross i j]))))
 
 (defn app []
   [:div
    [cross 1 1]
    [:h1 (:text @app-state)]
+   [:h2 (case (:game-status @app-state)
+          :won "You won!"
+          :lost "You lost.."
+          :draw "It's a draw!"
+          "")]
    [:button {:on-click #(prn @app-state)} "Print State"]
    [board]
    [:p
     [:button
      {:on-click (fn new-game-click [e]
-                  (swap! app-state assoc :board (new-board 3)))}
+                  (swap! app-state #(new-game 3)))}
      "New Game"]]])
 
 (reagent/render-component [app]
@@ -83,5 +117,5 @@
 (defn on-js-reload []
   ;; optionally touch your app-state to force rerendering depending on
   ;; your application
-  (swap! app-state assoc-in [:board 0 0] 2)
+  (swap! app-state assoc :text "Tic Tac Toe")
 )
