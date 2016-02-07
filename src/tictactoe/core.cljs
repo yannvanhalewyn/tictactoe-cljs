@@ -11,7 +11,7 @@
   (vec (repeat n (vec (repeat n :blank)))))
 
 (defonce app-state
-  (atom {:text "Tic Tac Toe"
+  (atom {:text "Tic Tac Toe!"
          :board (new-board board-size)
          :game-status :in-progress}))
 
