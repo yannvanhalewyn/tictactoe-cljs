@@ -57,7 +57,7 @@
    [:p
     [:button
      {:on-click (fn new-game-click [e]
-                  (swap! app-state #(new-game 3)))}
+                  (swap! app-state #(new-game board-size)))}
      "New Game"]]])
 
 (reagent/render-component [app]

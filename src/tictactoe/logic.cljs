@@ -1,13 +1,11 @@
 (ns tictactoe.logic)
 
-(def board-size 3)
-
 (defn game-running? [state]
   (or (nil? (:game-status state)) (= (:game-status state) :in-progress)))
 
 (defn computer-move [board]
-  (let [available-moves (for [i (range board-size)
-                              j (range board-size)
+  (let [available-moves (for [i (range (count board))
+                              j (range (count board))
                               :when (= (get-in board [j i]) :blank)]
                           [j i])
         move (rand-nth available-moves)]
@@ -27,8 +25,8 @@
 
 (defn win? [owner board]
   (some true?
-        (for [i (range board-size)
-              j (range board-size)
+        (for [i (range (count board))
+              j (range (count board))
               dir [[1 0] [0 1] [1 1] [1 -1]]]
           (straight? owner board [i j] dir))))
 
