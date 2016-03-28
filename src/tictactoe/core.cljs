@@ -5,7 +5,7 @@
 
 (enable-console-print!)
 
-(def board-size 3)
+(def board-size 4)
 
 (defn new-board [n]
   (vec (repeat n (vec (repeat n :blank)))))
